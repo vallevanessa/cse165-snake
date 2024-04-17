@@ -109,12 +109,12 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>../../freeglut/include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\Vanessa Valle\Downloads\SnakeProject\external\freeglut\include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>../../freeglut/lib/x64</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>C:\Users\Vanessa Valle\Downloads\SnakeProject\external\freeglut\lib\x64</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
