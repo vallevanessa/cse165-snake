@@ -54,7 +54,7 @@ public:
 
 	void setDirection(char newDirection) {
 		if ((newDirection == 'w' && direction != 's') || (newDirection == 'a' && direction != 'd') || (newDirection == 's' && direction != 'w')
-			|| (newDirection == 'd' && direction != 'd')) {
+			|| (newDirection == 'd' && direction != 'a')) {
 			direction = newDirection;
 		}
 	}
