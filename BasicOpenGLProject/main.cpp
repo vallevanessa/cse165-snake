@@ -18,8 +18,6 @@
 #include <cstdlib> // for exit()
 
 void gameOver() {
-	// Stop the game loop (if using glut, you may need to use glutIdleFunc(nullptr))
-	// Example: glutIdleFunc(nullptr);
 
 	// Display game over message
 	std::cout << "Game Over! Press any key to restart.\n";
@@ -27,7 +25,6 @@ void gameOver() {
 	// Optionally reset the game state (you may need to implement this)
 	// Example: resetGameState();
 
-	// Exit the program (if using glut, you may need to use glutLeaveMainLoop())
 	exit(EXIT_SUCCESS);
 }
 
