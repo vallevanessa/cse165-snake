@@ -3,6 +3,7 @@
 //#include <../external/freeglut/include/GL/freeglut.h>
 #include <iostream>
 #include <vector>
+#include <cstdlib>
 
 //=================================================================================================
 // CALLBACKS
@@ -13,6 +14,24 @@
 // https://www.opengl.org/resources/libraries/glut/spec3/node45.html
 // http://freeglut.sourceforge.net/docs/api.php#WindowCallback
 //-----------------------------------------------------------------------------
+
+
+
+#include <cstdlib> // for exit()
+
+void gameOver() {
+	// Stop the game loop (if using glut, you may need to use glutIdleFunc(nullptr))
+	// Example: glutIdleFunc(nullptr);
+
+	// Display game over message
+	std::cout << "Game Over! Press any key to restart.\n";
+
+	// Optionally reset the game state (you may need to implement this)
+	// Example: resetGameState();
+
+	// Exit the program (if using glut, you may need to use glutLeaveMainLoop())
+	exit(EXIT_SUCCESS);
+}
 
 struct SnakeSegment {
 	int x, y;
@@ -170,9 +189,12 @@ public:
 
 Food* food;
 
+void checkWallCollision();
+
 
 void update(int value) {
 	snake.move();
+	checkWallCollision(); // added this line to check if the snake hit the wall.
 
 	if (snake.getSegments().front().x == food->getX() && snake.getSegments().front().y == food->getY()) {
 		food->playSound();
@@ -201,6 +223,24 @@ void update(int value) {
 
 	glutPostRedisplay();
 	glutTimerFunc(snakeSpeed, update, 0);
+}
+
+//the game doesnt end when the tip of the snake hits the wall currently, it ends when the middle of the snake hits. at least that what its looks like to me. I will think about a solution to that for now but i think it looks good anyways.
+void checkWallCollision() {
+	//get position of the snakes head.
+	int headX = snake.getSegments().front().x;
+	int headY = snake.getSegments().front().y;
+
+	//define game boundaries so the game knows when its out of bounds.
+	int minX = 0;
+	int maxX = 800;
+	int minY = 0;
+	int maxY = 600;
+
+	//check if the head position exceeds boundaries.
+	if (headX < minX || headX >= maxX || headY < minY || headY >= maxY) {
+		gameOver();
+	}
 }
 
 void idle_func()
