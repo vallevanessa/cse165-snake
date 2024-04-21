@@ -1,6 +1,4 @@
 #include <GL/freeglut.h>
-//#include <external/GL/freeglut.h>
-//#include <../external/freeglut/include/GL/freeglut.h>
 #include <iostream>
 #include <vector>
 
@@ -170,11 +168,23 @@ public:
 
 Food* food;
 
+const int segmentSize = 30;
+
+bool isCollision(int x1, int y1, int x2, int y2) {
+	int alignedX1 = round(x1 / (float)segmentSize) * segmentSize;
+	int alignedY1 = round(y1 / (float)segmentSize) * segmentSize;
+	int alignedX2 = round(x2 / (float)segmentSize) * segmentSize;
+	int alignedY2 = round(y2 / (float)segmentSize) * segmentSize;
+
+	return alignedX1 == alignedX2 && alignedY1 == alignedY2;
+}
+
 
 void update(int value) {
 	snake.move();
 
-	if (snake.getSegments().front().x == food->getX() && snake.getSegments().front().y == food->getY()) {
+	if (isCollision(snake.getSegments().front().x, snake.getSegments().front().y,
+		food->getX(), food->getY())) {
 		food->playSound();
 
 		snake.getSegments().push_back(snake.getSegments().back());
