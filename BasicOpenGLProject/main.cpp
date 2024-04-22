@@ -14,9 +14,6 @@
 //-----------------------------------------------------------------------------
 
 
-
-#include <cstdlib> // for exit()
-
 void gameOver() {
 
 	// Display game over message
@@ -41,6 +38,7 @@ public:
 		segment.push_back({ startX, startY });
 		direction = 'd';
 	}
+	~Snake(){}
 	void move() {
 		int newX = segment.front().x;
 		int newY = segment.front().y;
@@ -66,6 +64,34 @@ public:
 		segment.insert(segment.begin(), { newX, newY });
 	}
 
+	void grow() {
+		int tailX = segment.back().x;
+		int tailY = segment.back().y;
+
+		switch (direction) {
+		case 'w':
+			for (int i = 0; i < 30; ++i) {
+				segment.push_back({ tailX, tailY + i });
+			}
+			break;
+		case 'a':
+			for (int i = 0; i < 30; ++i) {
+				segment.push_back({ tailX + i, tailY });
+			}
+			break;
+		case 's':
+			for (int i = 0; i < 30; ++i) {
+				segment.push_back({ tailX, tailY - i });
+			}
+			break;
+		case 'd':
+			for (int i = 0; i < 30; ++i) {
+				segment.push_back({ tailX - i, tailY });
+			}
+			break;
+		}
+	}
+
 	void setDirection(char newDirection) {
 		if ((newDirection == 'w' && direction != 's') || (newDirection == 'a' && direction != 'd') || (newDirection == 's' && direction != 'w')
 			|| (newDirection == 'd' && direction != 'a')) {
@@ -89,6 +115,7 @@ class GameObject {
 public:
 	virtual void draw() const = 0;
 	virtual void playSound() const = 0;
+	virtual ~GameObject() {}
 };
 
 
@@ -97,9 +124,10 @@ protected:
 	int x, y;
 public: 
 	Food() : x(0), y(0) {}
+	~Food(){}
 	virtual void placeRandom(int maxX, int maxY) {
-		x = rand() % maxX;
-		y = rand() % maxY;
+		x = (rand() % (maxX - 60)) + 30;
+		y = (rand() % (maxY - 30)) + 15;
 	}
 
 	virtual void draw() const = 0;
@@ -125,6 +153,7 @@ public:
 	void playSound() const override {
 		std::cout << "Eating apple sound \n";  // to be replaced!!
 	}
+	~Apple(){}
 };
 
 class Orange : public Food {
@@ -143,6 +172,7 @@ public:
 	void playSound() const override {
 		std::cout << "Eating orange sound \n";  // to be replaced!!
 	}
+	~Orange(){}
 };
 
 class Grape : public Food {
@@ -161,6 +191,7 @@ public:
 	void playSound() const override {
 		std::cout << "Eating grape sound \n";  // to be replaced!!
 	}
+	Grape(){}
 };
 
 
@@ -180,17 +211,18 @@ public:
 	void playSound() const override {
 		std::cout << "Eating banana sound \n";  // to be replaced!!
 	}
+	~Banana(){}
 };
 
-Food* food;
+Food* food = nullptr;
 
 const int segmentSize = 30;
 
 bool isCollision(int x1, int y1, int x2, int y2) {
-	int alignedX1 = round(x1 / (float)segmentSize) * segmentSize;
-	int alignedY1 = round(y1 / (float)segmentSize) * segmentSize;
-	int alignedX2 = round(x2 / (float)segmentSize) * segmentSize;
-	int alignedY2 = round(y2 / (float)segmentSize) * segmentSize;
+	int alignedX1 = static_cast<int>(round(x1 / static_cast<float>(segmentSize))) * segmentSize;
+	int alignedY1 = static_cast<int>(round(y1 / static_cast<float>(segmentSize))) * segmentSize;
+	int alignedX2 = static_cast<int>(round(x2 / static_cast<float>(segmentSize))) * segmentSize;
+	int alignedY2 = static_cast<int>(round(y2 / static_cast<float>(segmentSize))) * segmentSize;
 
 	return alignedX1 == alignedX2 && alignedY1 == alignedY2;
 }
@@ -207,8 +239,10 @@ void update(int value) {
 	if (isCollision(snake.getSegments().front().x, snake.getSegments().front().y,
 		food->getX(), food->getY())) {
 		food->playSound();
-
-		snake.getSegments().push_back(snake.getSegments().back());
+		
+		snake.grow();
+		std::cout << "Snake size: " << snake.getSegments().size() << "\n";
+		//snake.getSegments().push_back(snake.getSegments().back());
 
 		delete food;
 
@@ -344,7 +378,9 @@ void display_func(void)
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glLoadIdentity();
 
-	food->draw();
+	if (food) {
+		food->draw();
+	}
 
 	//draw snake
 	const float size = 30.0f;
@@ -374,6 +410,10 @@ void init(void)
 	// Set the background color (red, green, blue, alpha)
 	glClearColor(0.3f, 0.5f, 0.2f, 0.5f);
 
+	if (food) {
+		delete food;
+	}
+
 	switch (rand() % 4) {
 	case 0:
 		food = new Apple();
@@ -390,7 +430,6 @@ void init(void)
 	}
 
 	food->placeRandom(800, 600);
-
 	std::cout << "Finished initializing...\n\n";
 }
 
