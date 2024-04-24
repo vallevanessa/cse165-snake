@@ -33,30 +33,33 @@ class Snake {
 private:
 	std::vector<SnakeSegment> segment;
 	char direction;
+	static const int segmentSize = 30;
 public:
 	Snake(int startX, int startY) {
 		segment.push_back({ startX, startY });
 		direction = 'd';
 	}
+
 	~Snake(){}
+
 	void move() {
 		int newX = segment.front().x;
 		int newY = segment.front().y;
 
 		switch (direction) {
 		case 'w':
-			newY++;
+			newY+= segmentSize;
 			break;
 
 		case 'a':
-			newX--;
+			newX-= segmentSize;
 			break;
 		case 's':
-			newY--;
+			newY-= segmentSize;
 			break;
 
 		case 'd':
-			newX++;
+			newX+= segmentSize;
 			break;
 		}
 
@@ -70,24 +73,16 @@ public:
 
 		switch (direction) {
 		case 'w':
-			for (int i = 0; i < 30; ++i) {
-				segment.push_back({ tailX, tailY + i });
-			}
+			segment.push_back({ tailX, tailY + segmentSize });
 			break;
 		case 'a':
-			for (int i = 0; i < 30; ++i) {
-				segment.push_back({ tailX + i, tailY });
-			}
+			segment.push_back({ tailX + segmentSize, tailY });
 			break;
 		case 's':
-			for (int i = 0; i < 30; ++i) {
-				segment.push_back({ tailX, tailY - i });
-			}
+			segment.push_back({ tailX, tailY - segmentSize });
 			break;
 		case 'd':
-			for (int i = 0; i < 30; ++i) {
-				segment.push_back({ tailX - i, tailY });
-			}
+			segment.push_back({ tailX - segmentSize, tailY });
 			break;
 		}
 	}
@@ -107,9 +102,9 @@ public:
 
 
 
-Snake snake(400, 300);
+Snake snake(405, 315);
 
-const int snakeSpeed = 15;
+const int snakeSpeed = 100;
 
 class GameObject {
 public:
@@ -122,12 +117,17 @@ public:
 class Food : public GameObject {
 protected:
 	int x, y;
+	static const int segmentSize = 30;
 public: 
 	Food() : x(0), y(0) {}
 	~Food(){}
 	virtual void placeRandom(int maxX, int maxY) {
-		x = (rand() % (maxX - 60)) + 30;
-		y = (rand() % (maxY - 30)) + 15;
+		int cellX = rand() % (maxX / segmentSize);
+		int cellY = rand() % (maxY / segmentSize);
+
+		// Set food position to the center of the chosen cell
+		x = cellX * segmentSize + segmentSize / 2;
+		y = cellY * segmentSize + segmentSize / 2;
 	}
 
 	virtual void draw() const = 0;
@@ -340,7 +340,7 @@ void keyboard_func( unsigned char key, int x, int y )
 	}
 	}
 
-	snake.move();
+	//snake.move();
 
 	glutPostRedisplay();
 }
@@ -377,6 +377,31 @@ void display_func(void)
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glLoadIdentity();
+
+	//grid
+	glColor3f(0.0f, 0.0f, 0.0f);
+	//glBegin(GL_LINES);
+
+	const float lineWidth = 2.0f;
+
+	for (int x = 0; x <= 800; x += segmentSize) {
+		glLineWidth(lineWidth); 
+		glBegin(GL_LINES);
+		glVertex2f(x, 0);
+		glVertex2f(x, 600);
+		glEnd();
+
+	}
+	for (int y = 0; y <= 600; y += segmentSize) {
+		glLineWidth(lineWidth);
+		glBegin(GL_LINES);
+		glVertex2f(0, y);
+		glVertex2f(800, y);
+		glEnd();
+
+	}
+	//glEnd();
+
 
 	if (food) {
 		food->draw();
