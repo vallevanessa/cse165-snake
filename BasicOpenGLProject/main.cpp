@@ -41,7 +41,7 @@ public:
 		direction = 'd';
 	}
 
-	~Snake() {}
+	~Snake(){}
 
 	void move() {
 		int newX = segment.front().x;
@@ -49,18 +49,18 @@ public:
 
 		switch (direction) {
 		case 'w':
-			newY += segmentSize;
+			newY+= segmentSize;
 			break;
 
 		case 'a':
-			newX -= segmentSize;
+			newX-= segmentSize;
 			break;
 		case 's':
-			newY -= segmentSize;
+			newY-= segmentSize;
 			break;
 
 		case 'd':
-			newX += segmentSize;
+			newX+= segmentSize;
 			break;
 		}
 
@@ -96,15 +96,15 @@ public:
 	}
 
 	void changeColorToRandom() {
-		r = static_cast<float>(rand()) / static_cast<float>(RAND_MAX);
-		g = static_cast<float>(rand()) / static_cast<float>(RAND_MAX);
-		b = static_cast<float>(rand()) / static_cast<float>(RAND_MAX);
+		 r = static_cast<float>(rand()) / static_cast<float>(RAND_MAX);
+		 g = static_cast<float>(rand()) / static_cast<float>(RAND_MAX);
+		 b = static_cast<float>(rand()) / static_cast<float>(RAND_MAX);
 
 	}
 
 	float getRed() const { return r; }
 	float getGreen() const { return g; }
-	float getBlue() const { return b; }
+	float getBlue() const { return b;  }
 
 	std::vector<SnakeSegment> getSegments() const {
 		return segment;
@@ -130,9 +130,9 @@ class Food : public GameObject {
 protected:
 	int x, y;
 	static const int segmentSize = 30;
-public:
+public: 
 	Food() : x(0), y(0) {}
-	~Food() {}
+	~Food(){}
 	virtual void placeRandom(int maxX, int maxY) {
 		int cellX = rand() % (maxX / segmentSize);
 		int cellY = rand() % (maxY / segmentSize);
@@ -166,7 +166,7 @@ public:
 		snakeSpeed -= 5;
 		snake.grow();
 	}
-	~Apple() {}
+	~Apple(){}
 };
 
 class Orange : public Food {
@@ -186,7 +186,7 @@ public:
 		snakeSpeed += 5;
 		snake.grow();
 	}
-	~Orange() {}
+	~Orange(){}
 };
 
 class Grape : public Food {
@@ -207,7 +207,7 @@ public:
 		snake.grow();
 		snake.grow();
 	}
-	Grape() {}
+	Grape(){}
 };
 
 
@@ -228,12 +228,13 @@ public:
 		snake.changeColorToRandom();
 		snake.grow();
 	}
-	~Banana() {}
+	~Banana(){}
 };
 
 Food* food = nullptr;
 
 const int segmentSize = 30;
+
 
 bool isCollision(int x1, int y1, int x2, int y2) {
 	return x1 == x2 && y1 == y2;
@@ -282,8 +283,8 @@ void update(int value) {
 	if (isCollision(snake.getSegments().front().x, snake.getSegments().front().y,
 		food->getX(), food->getY())) {
 		food->foodEffect();
-
-		//	snake.grow();
+		
+	//	snake.grow();
 
 		delete food;
 
@@ -409,7 +410,7 @@ void display_func(void)
 	const float lineWidth = 2.0f;
 
 	for (int x = 0; x <= 800; x += segmentSize) {
-		glLineWidth(lineWidth);
+		glLineWidth(lineWidth); 
 		glBegin(GL_LINES);
 		glVertex2f(x, 0);
 		glVertex2f(x, 600);
