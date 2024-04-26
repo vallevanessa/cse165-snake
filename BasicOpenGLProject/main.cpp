@@ -34,8 +34,9 @@ private:
 	std::vector<SnakeSegment> segment;
 	char direction;
 	static const int segmentSize = 30;
+	float r, g, b;
 public:
-	Snake(int startX, int startY) {
+	Snake(int startX, int startY) : r(1.0f), g(1.0f), b(1.0f){
 		segment.push_back({ startX, startY });
 		direction = 'd';
 	}
@@ -63,8 +64,8 @@ public:
 			break;
 		}
 
-		segment.pop_back();
 		segment.insert(segment.begin(), { newX, newY });
+		segment.pop_back();
 	}
 
 	void grow() {
@@ -94,6 +95,17 @@ public:
 		}
 	}
 
+	void changeColorToRandom() {
+		 r = static_cast<float>(rand()) / static_cast<float>(RAND_MAX);
+		 g = static_cast<float>(rand()) / static_cast<float>(RAND_MAX);
+		 b = static_cast<float>(rand()) / static_cast<float>(RAND_MAX);
+
+	}
+
+	float getRed() const { return r; }
+	float getGreen() const { return g; }
+	float getBlue() const { return b;  }
+
 	std::vector<SnakeSegment> getSegments() const {
 		return segment;
 	}
@@ -104,12 +116,12 @@ public:
 
 Snake snake(405, 315);
 
-const int snakeSpeed = 100;
+int snakeSpeed = 95;
 
 class GameObject {
 public:
 	virtual void draw() const = 0;
-	virtual void playSound() const = 0;
+	virtual void foodEffect() const = 0;
 	virtual ~GameObject() {}
 };
 
@@ -131,7 +143,7 @@ public:
 	}
 
 	virtual void draw() const = 0;
-	virtual void playSound() const = 0;
+	virtual void foodEffect() const = 0;
 	virtual int getX() const { return x; }
 	virtual int getY() const { return y; }
 };
@@ -150,8 +162,9 @@ public:
 		glEnd();
 	}
 
-	void playSound() const override {
-		std::cout << "Eating apple sound \n";  // to be replaced!!
+	void foodEffect() const override {
+		snakeSpeed -= 5;
+		snake.grow();
 	}
 	~Apple(){}
 };
@@ -169,8 +182,9 @@ public:
 		glEnd();
 	}
 
-	void playSound() const override {
-		std::cout << "Eating orange sound \n";  // to be replaced!!
+	void foodEffect() const override {
+		snakeSpeed += 5;
+		snake.grow();
 	}
 	~Orange(){}
 };
@@ -188,8 +202,10 @@ public:
 		glEnd();
 	}
 
-	void playSound() const override {
-		std::cout << "Eating grape sound \n";  // to be replaced!!
+	void foodEffect() const override {
+		snake.grow();
+		snake.grow();
+		snake.grow();
 	}
 	Grape(){}
 };
@@ -208,8 +224,9 @@ public:
 		glEnd();
 	}
 
-	void playSound() const override {
-		std::cout << "Eating banana sound \n";  // to be replaced!!
+	void foodEffect() const override {
+		snake.changeColorToRandom();
+		snake.grow();
 	}
 	~Banana(){}
 };
@@ -219,18 +236,10 @@ Food* food = nullptr;
 const int segmentSize = 30;
 
 bool isCollision(int x1, int y1, int x2, int y2) {
-	int alignedX1 = static_cast<int>(round(x1 / static_cast<float>(segmentSize))) * segmentSize;
-	int alignedY1 = static_cast<int>(round(y1 / static_cast<float>(segmentSize))) * segmentSize;
-	int alignedX2 = static_cast<int>(round(x2 / static_cast<float>(segmentSize))) * segmentSize;
-	int alignedY2 = static_cast<int>(round(y2 / static_cast<float>(segmentSize))) * segmentSize;
-
-	return alignedX1 == alignedX2 && alignedY1 == alignedY2;
+	return x1 == x2 && y1 == y2;
 }
 
-
 void checkWallCollision();
-
-
 
 void update(int value) {
 	snake.move();
@@ -238,12 +247,10 @@ void update(int value) {
 
 	if (isCollision(snake.getSegments().front().x, snake.getSegments().front().y,
 		food->getX(), food->getY())) {
-		food->playSound();
+		food->foodEffect();
 		
-		snake.grow();
-		std::cout << "Snake size: " << snake.getSegments().size() << "\n";
-		//snake.getSegments().push_back(snake.getSegments().back());
-
+	//	snake.grow();
+		
 		delete food;
 
 		switch (rand() % 4) {
@@ -380,7 +387,6 @@ void display_func(void)
 
 	//grid
 	glColor3f(0.0f, 0.0f, 0.0f);
-	//glBegin(GL_LINES);
 
 	const float lineWidth = 2.0f;
 
@@ -400,7 +406,6 @@ void display_func(void)
 		glEnd();
 
 	}
-	//glEnd();
 
 
 	if (food) {
@@ -409,7 +414,7 @@ void display_func(void)
 
 	//draw snake
 	const float size = 30.0f;
-	glColor3f(1.0f, 1.0f, 1.0f); //snake color (change)
+	glColor3f(snake.getRed(), snake.getGreen(), snake.getBlue()); //snake color (change)
 	for (const auto& segment : snake.getSegments()) {
 		glBegin(GL_QUADS);
 		glVertex2f(segment.x - size / 2, segment.y - size / 2);
