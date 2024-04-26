@@ -36,7 +36,7 @@ private:
 	static const int segmentSize = 30;
 	float r, g, b;
 public:
-	Snake(int startX, int startY) : r(1.0f), g(1.0f), b(1.0f){
+	Snake(int startX, int startY) : r(1.0f), g(1.0f), b(1.0f) {
 		segment.push_back({ startX, startY });
 		direction = 'd';
 	}
@@ -150,7 +150,7 @@ public:
 
 
 class Apple : public Food {
-public: 
+public:
 	void draw() const override {
 		const float size = 30.0f;
 		glColor3f(1.0f, 0.0f, 0.0f);
@@ -235,47 +235,11 @@ Food* food = nullptr;
 
 const int segmentSize = 30;
 
+
 bool isCollision(int x1, int y1, int x2, int y2) {
 	return x1 == x2 && y1 == y2;
 }
 
-void checkWallCollision();
-
-void update(int value) {
-	snake.move();
-	checkWallCollision(); // added this line to check if the snake hit the wall.
-
-	if (isCollision(snake.getSegments().front().x, snake.getSegments().front().y,
-		food->getX(), food->getY())) {
-		food->foodEffect();
-		
-	//	snake.grow();
-		
-		delete food;
-
-		switch (rand() % 4) {
-		case 0:
-			food = new Apple();
-			break;
-
-		case 1:
-			food = new Orange();
-			break;
-		case 2: 
-			food = new Grape();
-			break;
-		case 3: 
-			food = new Banana();
-			break;
-		}
-		food->placeRandom(800, 600);
-	}
-
-	glutPostRedisplay();
-	glutTimerFunc(snakeSpeed, update, 0);
-}
-
-//the game doesnt end when the tip of the snake hits the wall currently, it ends when the middle of the snake hits. at least that what its looks like to me. I will think about a solution to that for now but i think it looks good anyways.
 void checkWallCollision() {
 	//get position of the snakes head.
 	int headX = snake.getSegments().front().x;
@@ -293,16 +257,71 @@ void checkWallCollision() {
 	}
 }
 
+void checkSelfCollision() {
+	// Get the position of the snake's head
+	int headX = snake.getSegments().front().x;
+	int headY = snake.getSegments().front().y;
+
+	// Store the segments of the snake's body in a local variable
+	const auto& segments = snake.getSegments();
+
+	// Iterate through all segments of the snake's body except for the head
+	for (auto it = std::next(segments.begin()); it != segments.end(); ++it) {
+		// Check if the head collides with any other segment of the body
+		if (headX == it->x && headY == it->y) {
+			gameOver(); // Trigger game over if self-collision is detected
+			return;
+		}
+	}
+}
+
+void update(int value) {
+	snake.move();
+	checkWallCollision(); // added this line to check if the snake hit the wall.
+	checkSelfCollision();
+
+	if (isCollision(snake.getSegments().front().x, snake.getSegments().front().y,
+		food->getX(), food->getY())) {
+		food->foodEffect();
+		
+	//	snake.grow();
+
+		delete food;
+
+		switch (rand() % 4) {
+		case 0:
+			food = new Apple();
+			break;
+
+		case 1:
+			food = new Orange();
+			break;
+		case 2:
+			food = new Grape();
+			break;
+		case 3:
+			food = new Banana();
+			break;
+		}
+		food->placeRandom(800, 600);
+	}
+
+	glutPostRedisplay();
+	glutTimerFunc(snakeSpeed, update, 0);
+}
+
+
+
 void idle_func()
 {
 	//snake.move();
 	//uncomment below to repeatedly draw new frames
 	//glutPostRedisplay();
 }
- 
-void reshape_func( int width, int height )
+
+void reshape_func(int width, int height)
 {
-	glViewport( 0, 0, width, height );
+	glViewport(0, 0, width, height);
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 	gluOrtho2D(0, width, 0, height);
@@ -311,9 +330,9 @@ void reshape_func( int width, int height )
 	glutPostRedisplay();
 }
 
-void keyboard_func( unsigned char key, int x, int y )
+void keyboard_func(unsigned char key, int x, int y)
 {
-	switch( key )
+	switch (key)
 	{
 	case 'w':
 	{
@@ -454,7 +473,7 @@ void init(void)
 	case 2:
 		food = new Grape();
 		break;
-	case 3: 
+	case 3:
 		food = new Banana();
 		break;
 	}
