@@ -13,6 +13,7 @@
 // http://freeglut.sourceforge.net/docs/api.php#WindowCallback
 //-----------------------------------------------------------------------------
 
+int points = 0;
 
 void gameOver() {
 
@@ -89,9 +90,11 @@ public:
 	}
 
 	void setDirection(char newDirection) {
-		if ((newDirection == 'w' && direction != 's') || (newDirection == 'a' && direction != 'd') || (newDirection == 's' && direction != 'w')
-			|| (newDirection == 'd' && direction != 'a')) {
+		static char lastDirection = direction;
+		if ((newDirection == 'w' && lastDirection != 's') || (newDirection == 'a' && lastDirection != 'd') || (newDirection == 's' && lastDirection != 'w')
+			|| (newDirection == 'd' && lastDirection != 'a')) {
 			direction = newDirection;
+			lastDirection = newDirection;
 		}
 	}
 
@@ -163,8 +166,10 @@ public:
 	}
 
 	void foodEffect() const override {
+		points += 1;
 		snakeSpeed -= 5;
 		snake.grow();
+		std::cout << "Total points: " << points << std::endl;
 	}
 	~Apple(){}
 };
@@ -183,8 +188,10 @@ public:
 	}
 
 	void foodEffect() const override {
+		points += 1;
 		snakeSpeed += 5;
 		snake.grow();
+		std::cout << "Total points: " << points << std::endl;
 	}
 	~Orange(){}
 };
@@ -204,8 +211,9 @@ public:
 
 	void foodEffect() const override {
 		snake.grow();
-		snake.grow();
-		snake.grow();
+		points += 5;
+		std::cout << "Total points: " << points << std::endl;
+		
 	}
 	Grape(){}
 };
@@ -225,8 +233,10 @@ public:
 	}
 
 	void foodEffect() const override {
+		points += 1;
 		snake.changeColorToRandom();
 		snake.grow();
+		std::cout << "Total points: " << points << std::endl;
 	}
 	~Banana(){}
 };
@@ -283,6 +293,7 @@ void update(int value) {
 	if (isCollision(snake.getSegments().front().x, snake.getSegments().front().y,
 		food->getX(), food->getY())) {
 		food->foodEffect();
+
 		
 	//	snake.grow();
 
