@@ -2,6 +2,7 @@
 #include <iostream>
 #include <vector>
 #include <cstdlib>
+#include <queue>
 
 //=================================================================================================
 // CALLBACKS
@@ -33,47 +34,62 @@ struct SnakeSegment {
 class Snake {
 private:
 	std::vector<SnakeSegment> segment;
-	char direction;
+	std::queue<char> directions;
 	static const int segmentSize = 30;
 	float r, g, b;
+	char lastDirection;
 public:
-	Snake(int startX, int startY) : r(1.0f), g(1.0f), b(1.0f) {
+	Snake(int startX, int startY) : r(1.0f), g(1.0f), b(1.0f), lastDirection('d') {
 		segment.push_back({ startX, startY });
-		direction = 'd';
 	}
 
-	~Snake(){}
+	~Snake() {}
 
 	void move() {
-		int newX = segment.front().x;
-		int newY = segment.front().y;
+		char direction;
 
-		switch (direction) {
-		case 'w':
-			newY+= segmentSize;
-			break;
-
-		case 'a':
-			newX-= segmentSize;
-			break;
-		case 's':
-			newY-= segmentSize;
-			break;
-
-		case 'd':
-			newX+= segmentSize;
-			break;
+		if (!directions.empty()) {
+			direction = directions.front();
+			directions.pop();
+			lastDirection = direction;
+		}
+		else {
+			direction = lastDirection;
 		}
 
-		segment.insert(segment.begin(), { newX, newY });
-		segment.pop_back();
+		if (!segment.empty()) {
+			int newX = segment.front().x;
+			int newY = segment.front().y;
+
+			switch (direction) {
+			case 'w':
+				newY += segmentSize;
+				break;
+
+			case 'a':
+				newX -= segmentSize;
+				break;
+			case 's':
+				newY -= segmentSize;
+				break;
+
+			case 'd':
+				newX += segmentSize;
+				break;
+			}
+
+
+			segment.insert(segment.begin(), { newX, newY });
+			segment.pop_back();
+		}
+
 	}
 
 	void grow() {
 		int tailX = segment.back().x;
 		int tailY = segment.back().y;
 
-		switch (direction) {
+		switch (lastDirection) {
 		case 'w':
 			segment.push_back({ tailX, tailY + segmentSize });
 			break;
@@ -90,24 +106,23 @@ public:
 	}
 
 	void setDirection(char newDirection) {
-		static char lastDirection = direction;
 		if ((newDirection == 'w' && lastDirection != 's') || (newDirection == 'a' && lastDirection != 'd') || (newDirection == 's' && lastDirection != 'w')
 			|| (newDirection == 'd' && lastDirection != 'a')) {
-			direction = newDirection;
+			directions.push(newDirection);
 			lastDirection = newDirection;
 		}
 	}
 
 	void changeColorToRandom() {
-		 r = static_cast<float>(rand()) / static_cast<float>(RAND_MAX);
-		 g = static_cast<float>(rand()) / static_cast<float>(RAND_MAX);
-		 b = static_cast<float>(rand()) / static_cast<float>(RAND_MAX);
+		r = static_cast<float>(rand()) / static_cast<float>(RAND_MAX);
+		g = static_cast<float>(rand()) / static_cast<float>(RAND_MAX);
+		b = static_cast<float>(rand()) / static_cast<float>(RAND_MAX);
 
 	}
 
 	float getRed() const { return r; }
 	float getGreen() const { return g; }
-	float getBlue() const { return b;  }
+	float getBlue() const { return b; }
 
 	std::vector<SnakeSegment> getSegments() const {
 		return segment;
@@ -133,9 +148,9 @@ class Food : public GameObject {
 protected:
 	int x, y;
 	static const int segmentSize = 30;
-public: 
+public:
 	Food() : x(0), y(0) {}
-	~Food(){}
+	~Food() {}
 	virtual void placeRandom(int maxX, int maxY) {
 		int cellX = rand() % (maxX / segmentSize);
 		int cellY = rand() % (maxY / segmentSize);
@@ -171,7 +186,7 @@ public:
 		snake.grow();
 		std::cout << "Total points: " << points << std::endl;
 	}
-	~Apple(){}
+	~Apple() {}
 };
 
 class Orange : public Food {
@@ -193,7 +208,7 @@ public:
 		snake.grow();
 		std::cout << "Total points: " << points << std::endl;
 	}
-	~Orange(){}
+	~Orange() {}
 };
 
 class Grape : public Food {
@@ -213,9 +228,9 @@ public:
 		snake.grow();
 		points += 5;
 		std::cout << "Total points: " << points << std::endl;
-		
+
 	}
-	Grape(){}
+	Grape() {}
 };
 
 
@@ -238,7 +253,7 @@ public:
 		snake.grow();
 		std::cout << "Total points: " << points << std::endl;
 	}
-	~Banana(){}
+	~Banana() {}
 };
 
 Food* food = nullptr;
@@ -294,27 +309,27 @@ void update(int value) {
 		food->getX(), food->getY())) {
 		food->foodEffect();
 
-		
-	//	snake.grow();
-
 		delete food;
 
 		switch (rand() % 4) {
 		case 0:
 			food = new Apple();
+			food->placeRandom(800, 600);
 			break;
 
 		case 1:
 			food = new Orange();
+			food->placeRandom(800, 600);
 			break;
 		case 2:
 			food = new Grape();
+			food->placeRandom(800, 600);
 			break;
 		case 3:
 			food = new Banana();
+			food->placeRandom(800, 600);
 			break;
 		}
-		food->placeRandom(800, 600);
 	}
 
 	glutPostRedisplay();
@@ -376,9 +391,6 @@ void keyboard_func(unsigned char key, int x, int y)
 		break;
 	}
 	}
-
-	//snake.move();
-
 	glutPostRedisplay();
 }
 
@@ -421,18 +433,18 @@ void display_func(void)
 	const float lineWidth = 2.0f;
 
 	for (int x = 0; x <= 800; x += segmentSize) {
-		glLineWidth(lineWidth); 
+		glLineWidth(lineWidth);
 		glBegin(GL_LINES);
-		glVertex2f(x, 0);
-		glVertex2f(x, 600);
+		glVertex2f(static_cast<float>(x), 0.0f);
+		glVertex2f(static_cast<float>(x), 600.0f);
 		glEnd();
 
 	}
 	for (int y = 0; y <= 600; y += segmentSize) {
 		glLineWidth(lineWidth);
 		glBegin(GL_LINES);
-		glVertex2f(0, y);
-		glVertex2f(800, y);
+		glVertex2f(0.0f, static_cast<float>(y));
+		glVertex2f(800.0f, static_cast<float>(y));
 		glEnd();
 
 	}
@@ -477,19 +489,22 @@ void init(void)
 	switch (rand() % 4) {
 	case 0:
 		food = new Apple();
+		food->placeRandom(800, 600);
 		break;
 	case 1:
 		food = new Orange();
+		food->placeRandom(800, 600);
 		break;
 	case 2:
 		food = new Grape();
+		food->placeRandom(800, 600);
 		break;
 	case 3:
 		food = new Banana();
+		food->placeRandom(800, 600);
 		break;
 	}
 
-	food->placeRandom(800, 600);
 	std::cout << "Finished initializing...\n\n";
 }
 
