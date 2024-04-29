@@ -17,12 +17,13 @@
 
 int points = 0;
 bool gameOver = false;
+int snakeSpeed = 95;
+const int segmentSize = 30;
 
 struct SnakeSegment {
 	int x, y;
 };
 
-int snakeSpeed = 95;
 
 class Snake {
 private:
@@ -136,9 +137,6 @@ public:
 };
 
 Snake snake(405, 315);
-
-
-// int snakeSpeed = 95;
 
 void handleGameOver() {
 
@@ -264,8 +262,6 @@ public:
 
 Food* food = nullptr;
 
-const int segmentSize = 30;
-
 
 bool isCollision(int x1, int y1, int x2, int y2) {
 	return x1 == x2 && y1 == y2;
@@ -345,15 +341,6 @@ void update(int value) {
 	glutTimerFunc(snakeSpeed, update, 0);
 }
 
-
-
-void idle_func()
-{
-	//snake.move();
-	//uncomment below to repeatedly draw new frames
-	//glutPostRedisplay();
-}
-
 void reshape_func(int width, int height)
 {
 	glViewport(0, 0, width, height);
@@ -417,30 +404,6 @@ void keyboard_func(unsigned char key, int x, int y)
 	glutPostRedisplay();
 }
 
-
-void key_released(unsigned char key, int x, int y)
-{
-}
-
-void key_special_pressed(int key, int x, int y)
-{
-}
-
-void key_special_released(int key, int x, int y)
-{
-}
-
-void mouse_func(int button, int state, int x, int y)
-{
-}
-void passive_motion_func(int x, int y)
-{
-}
-
-void active_motion_func(int x, int y)
-{
-}
-
 //=================================================================================================
 // RENDERING
 //=================================================================================================
@@ -449,9 +412,7 @@ void restartGame() {
 	// Reset game state
 	gameOver = false;
 	points = 0;
-	// Reset snake position
-	// Reinitialize food
-	// ...
+
 }
 
 void renderGameOverScreen() {
@@ -466,7 +427,7 @@ void renderGameOverScreen() {
 
 	// Render score
 	glColor3f(1.0f, 1.0f, 1.0f);
-	glRasterPos2i(354, 328);
+	glRasterPos2i(350, 328);
 	std::string scoreMessage = "Score: " + std::to_string(points);
 	for (const char& c : scoreMessage) {
 		glutBitmapCharacter(GLUT_BITMAP_TIMES_ROMAN_24, c);
@@ -589,15 +550,8 @@ int main(int argc, char** argv)
 	glutCreateWindow("Snake");
 
 	glutDisplayFunc(display_func);
-	glutIdleFunc(idle_func);
 	glutReshapeFunc(reshape_func);
 	glutKeyboardFunc(keyboard_func);
-	glutKeyboardUpFunc(key_released);
-	glutSpecialFunc(key_special_pressed);
-	glutSpecialUpFunc(key_special_released);
-	glutMouseFunc(mouse_func);
-	glutMotionFunc(active_motion_func);
-	glutPassiveMotionFunc(passive_motion_func);
 
 	init();
 
