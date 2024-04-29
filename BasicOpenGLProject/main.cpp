@@ -146,12 +146,6 @@ void handleGameOver() {
 	snake.reset(); //Reset the snake because it was blocking the display screen
 }
 
-void handleGameOver() {
-
-	gameOver = true;
-	snake.reset(); //Reset the snake because it was blocking the display screen
-}
-
 class GameObject {
 public:
 	virtual void draw() const = 0;
@@ -284,7 +278,7 @@ void checkWallCollision() {
 
 	//define game boundaries so the game knows when its out of bounds.
 	int minX = 0;
-	int maxX = 800;
+	int maxX = 810;
 	int minY = 0;
 	int maxY = 600;
 
@@ -328,20 +322,20 @@ void update(int value) {
 			switch (rand() % 4) {
 			case 0:
 				food = new Apple();
-				food->placeRandom(800, 600);
+				food->placeRandom(810, 600);
 				break;
 
 			case 1:
 				food = new Orange();
-				food->placeRandom(800, 600);
+				food->placeRandom(810, 600);
 				break;
 			case 2:
 				food = new Grape();
-				food->placeRandom(800, 600);
+				food->placeRandom(810, 600);
 				break;
 			case 3:
 				food = new Banana();
-				food->placeRandom(800, 600);
+				food->placeRandom(810, 600);
 				break;
 			}
 		}
@@ -499,7 +493,7 @@ void display_func(void)
 
 		const float lineWidth = 2.0f;
 
-		for (int x = 0; x <= 800; x += segmentSize) {
+		for (int x = 0; x <= 810; x += segmentSize) {
 			glLineWidth(lineWidth);
 			glBegin(GL_LINES);
 			glVertex2f(static_cast<float>(x), 0.0f);
@@ -511,7 +505,7 @@ void display_func(void)
 			glLineWidth(lineWidth);
 			glBegin(GL_LINES);
 			glVertex2f(0.0f, static_cast<float>(y));
-			glVertex2f(800.0f, static_cast<float>(y));
+			glVertex2f(810.0f, static_cast<float>(y));
 			glEnd();
 
 		}
@@ -561,19 +555,19 @@ void init(void)
 	switch (rand() % 4) {
 	case 0:
 		food = new Apple();
-		food->placeRandom(800, 600);
+		food->placeRandom(810, 600);
 		break;
 	case 1:
 		food = new Orange();
-		food->placeRandom(800, 600);
+		food->placeRandom(810, 600);
 		break;
 	case 2:
 		food = new Grape();
-		food->placeRandom(800, 600);
+		food->placeRandom(810, 600);
 		break;
 	case 3:
 		food = new Banana();
-		food->placeRandom(800, 600);
+		food->placeRandom(810, 600);
 		break;
 	}
 
@@ -589,7 +583,7 @@ int main(int argc, char** argv)
 	glutInit(&argc, argv);
 
 	glutInitWindowPosition(100, 100);
-	glutInitWindowSize(800, 600);
+	glutInitWindowSize(810, 600);
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH);
 
 	glutCreateWindow("Snake");
