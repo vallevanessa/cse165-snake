@@ -41,6 +41,7 @@ public:
 	void reset() {
 		segment.clear(); // Clear all segments
 		segment.push_back({ 405, 315 }); // Reset to initial position
+
 		directions = std::queue<char>(); // Clear direction queue
 		lastDirection = 'd'; // Reset last direction
 		snakeSpeed = 95; // Reset speed
@@ -136,7 +137,14 @@ public:
 
 Snake snake(405, 315);
 
+
 // int snakeSpeed = 95;
+
+void handleGameOver() {
+
+	gameOver = true;
+	snake.reset(); //Reset the snake because it was blocking the display screen
+}
 
 void handleGameOver() {
 
