@@ -22,6 +22,8 @@ struct SnakeSegment {
 	int x, y;
 };
 
+int snakeSpeed = 95;
+
 class Snake {
 private:
 	std::vector<SnakeSegment> segment;
@@ -39,6 +41,13 @@ public:
 	void reset() {
 		segment.clear(); // Clear all segments
 		segment.push_back({ 405, 315 }); // Reset to initial position
+
+		directions = std::queue<char>(); // Clear direction queue
+		lastDirection = 'd'; // Reset last direction
+		snakeSpeed = 95; // Reset speed
+		r = 1.0f;
+		g = 1.0f;
+		b = 1.0f;
 	}
 
 	void move() {
@@ -128,7 +137,14 @@ public:
 
 Snake snake(405, 315);
 
-int snakeSpeed = 95;
+
+// int snakeSpeed = 95;
+
+void handleGameOver() {
+
+	gameOver = true;
+	snake.reset(); //Reset the snake because it was blocking the display screen
+}
 
 void handleGameOver() {
 
