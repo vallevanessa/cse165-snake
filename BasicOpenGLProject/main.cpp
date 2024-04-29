@@ -3,6 +3,7 @@
 #include <vector>
 #include <cstdlib>
 #include <queue>
+#include <string>
 
 //=================================================================================================
 // CALLBACKS
@@ -15,21 +16,13 @@
 //-----------------------------------------------------------------------------
 
 int points = 0;
-
-void gameOver() {
-
-	// Display game over message
-	std::cout << "Game Over! Press any key to restart.\n";
-
-	// Optionally reset the game state (you may need to implement this)
-	// Example: resetGameState();
-
-	exit(EXIT_SUCCESS);
-}
+bool gameOver = false;
 
 struct SnakeSegment {
 	int x, y;
 };
+
+int snakeSpeed = 95;
 
 class Snake {
 private:
@@ -44,6 +37,17 @@ public:
 	}
 
 	~Snake() {}
+
+	void reset() {
+		segment.clear(); // Clear all segments
+		segment.push_back({ 405, 315 }); // Reset to initial position
+		directions = std::queue<char>(); // Clear direction queue
+		lastDirection = 'd'; // Reset last direction
+		snakeSpeed = 95; // Reset speed
+		r = 1.0f;
+		g = 1.0f;
+		b = 1.0f;
+	}
 
 	void move() {
 		char direction;
@@ -130,11 +134,15 @@ public:
 
 };
 
-
-
 Snake snake(405, 315);
 
-int snakeSpeed = 95;
+// int snakeSpeed = 95;
+
+void handleGameOver() {
+
+	gameOver = true;
+	snake.reset(); //Reset the snake because it was blocking the display screen
+}
 
 class GameObject {
 public:
@@ -184,7 +192,6 @@ public:
 		points += 1;
 		snakeSpeed -= 5;
 		snake.grow();
-		std::cout << "Total points: " << points << std::endl;
 	}
 	~Apple() {}
 };
@@ -206,7 +213,6 @@ public:
 		points += 1;
 		snakeSpeed += 5;
 		snake.grow();
-		std::cout << "Total points: " << points << std::endl;
 	}
 	~Orange() {}
 };
@@ -227,7 +233,6 @@ public:
 	void foodEffect() const override {
 		snake.grow();
 		points += 5;
-		std::cout << "Total points: " << points << std::endl;
 
 	}
 	Grape() {}
@@ -251,7 +256,6 @@ public:
 		points += 1;
 		snake.changeColorToRandom();
 		snake.grow();
-		std::cout << "Total points: " << points << std::endl;
 	}
 	~Banana() {}
 };
@@ -278,7 +282,7 @@ void checkWallCollision() {
 
 	//check if the head position exceeds boundaries.
 	if (headX < minX || headX >= maxX || headY < minY || headY >= maxY) {
-		gameOver();
+		handleGameOver();
 	}
 }
 
@@ -294,41 +298,44 @@ void checkSelfCollision() {
 	for (auto it = std::next(segments.begin()); it != segments.end(); ++it) {
 		// Check if the head collides with any other segment of the body
 		if (headX == it->x && headY == it->y) {
-			gameOver(); // Trigger game over if self-collision is detected
+			handleGameOver(); // Trigger game over if self-collision is detected
 			return;
 		}
 	}
 }
 
 void update(int value) {
-	snake.move();
-	checkWallCollision(); // added this line to check if the snake hit the wall.
-	checkSelfCollision();
 
-	if (isCollision(snake.getSegments().front().x, snake.getSegments().front().y,
-		food->getX(), food->getY())) {
-		food->foodEffect();
+	if (!gameOver) {
+		snake.move();
+		checkWallCollision(); // added this line to check if the snake hit the wall.
+		checkSelfCollision();
 
-		delete food;
+		if (isCollision(snake.getSegments().front().x, snake.getSegments().front().y,
+			food->getX(), food->getY())) {
+			food->foodEffect();
 
-		switch (rand() % 4) {
-		case 0:
-			food = new Apple();
-			food->placeRandom(800, 600);
-			break;
+			delete food;
 
-		case 1:
-			food = new Orange();
-			food->placeRandom(800, 600);
-			break;
-		case 2:
-			food = new Grape();
-			food->placeRandom(800, 600);
-			break;
-		case 3:
-			food = new Banana();
-			food->placeRandom(800, 600);
-			break;
+			switch (rand() % 4) {
+			case 0:
+				food = new Apple();
+				food->placeRandom(800, 600);
+				break;
+
+			case 1:
+				food = new Orange();
+				food->placeRandom(800, 600);
+				break;
+			case 2:
+				food = new Grape();
+				food->placeRandom(800, 600);
+				break;
+			case 3:
+				food = new Banana();
+				food->placeRandom(800, 600);
+				break;
+			}
 		}
 	}
 
@@ -356,43 +363,58 @@ void reshape_func(int width, int height)
 	glutPostRedisplay();
 }
 
+void restartGame(); // Function prototype declaration
+
 void keyboard_func(unsigned char key, int x, int y)
 {
-	switch (key)
-	{
-	case 'w':
-	{
-		snake.setDirection('w');
-		break;
+	if (gameOver) {
+		switch (key)
+		{
+		case 'r': // Restart the game when 'r' key is pressed
+		{
+			restartGame();
+			break;
+		}
+
+		case 'e': // Exit the game when 'e' key is pressed
+		{
+			exit(EXIT_SUCCESS);
+			break;
+		}
+		}
+	}
+	else {
+		switch (key)
+		{
+		case 'w':
+		{
+			snake.setDirection('w');
+			break;
+		}
+
+		case 'a':
+		{
+			snake.setDirection('a');
+			break;
+		}
+
+		case 's':
+		{
+			snake.setDirection('s');
+			break;
+		}
+
+		case 'd':
+		{
+			snake.setDirection('d');
+			break;
+		}
+		}
 	}
 
-	case 'a':
-	{
-		snake.setDirection('a');
-		break;
-	}
-
-	case 's':
-	{
-		snake.setDirection('s');
-		break;
-	}
-
-	case 'd':
-	{
-		snake.setDirection('d');
-		break;
-	}
-
-	// Exit on escape key press
-	case '\x1B':
-	{
-		exit(EXIT_SUCCESS);
-		break;
-	}
-	}
 	glutPostRedisplay();
 }
+
 
 void key_released(unsigned char key, int x, int y)
 {
@@ -409,7 +431,6 @@ void key_special_released(int key, int x, int y)
 void mouse_func(int button, int state, int x, int y)
 {
 }
-
 void passive_motion_func(int x, int y)
 {
 }
@@ -422,49 +443,92 @@ void active_motion_func(int x, int y)
 // RENDERING
 //=================================================================================================
 
+void restartGame() {
+	// Reset game state
+	gameOver = false;
+	points = 0;
+	// Reset snake position
+	// Reinitialize food
+	// ...
+}
+
+void renderGameOverScreen() {
+
+	// Render game over message
+	glColor3f(1.0f, 0.0f, 0.0f);
+	glRasterPos2i(330, 390);
+	std::string gameOverMessage = "Game Over!";
+	for (const char& c : gameOverMessage) {
+		glutBitmapCharacter(GLUT_BITMAP_TIMES_ROMAN_24, c);
+	}
+
+	// Render score
+	glColor3f(1.0f, 1.0f, 1.0f);
+	glRasterPos2i(354, 328);
+	std::string scoreMessage = "Score: " + std::to_string(points);
+	for (const char& c : scoreMessage) {
+		glutBitmapCharacter(GLUT_BITMAP_TIMES_ROMAN_24, c);
+	}
+
+	// Render restart text
+	glColor3f(0.0f, 0.0f, 1.0f);
+	glRasterPos2i(248, 270);
+	std::string restartMessage = "Press R to Restart or E to exit";
+	for (const char& c : restartMessage) {
+		glutBitmapCharacter(GLUT_BITMAP_TIMES_ROMAN_24, c);
+	}
+}
+
+
 void display_func(void)
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glLoadIdentity();
 
-	//grid
-	glColor3f(0.0f, 0.0f, 0.0f);
+	if (!gameOver) {
+		// grid
+		glColor3f(0.0f, 0.0f, 0.0f);
 
-	const float lineWidth = 2.0f;
+		const float lineWidth = 2.0f;
 
-	for (int x = 0; x <= 800; x += segmentSize) {
-		glLineWidth(lineWidth);
-		glBegin(GL_LINES);
-		glVertex2f(static_cast<float>(x), 0.0f);
-		glVertex2f(static_cast<float>(x), 600.0f);
-		glEnd();
+		for (int x = 0; x <= 800; x += segmentSize) {
+			glLineWidth(lineWidth);
+			glBegin(GL_LINES);
+			glVertex2f(static_cast<float>(x), 0.0f);
+			glVertex2f(static_cast<float>(x), 600.0f);
+			glEnd();
 
+		}
+		for (int y = 0; y <= 600; y += segmentSize) {
+			glLineWidth(lineWidth);
+			glBegin(GL_LINES);
+			glVertex2f(0.0f, static_cast<float>(y));
+			glVertex2f(800.0f, static_cast<float>(y));
+			glEnd();
+
+		}
+		//draw snake
+		const float size = 30.0f;
+		glColor3f(snake.getRed(), snake.getGreen(), snake.getBlue()); //snake color (change)
+		for (const auto& segment : snake.getSegments()) {
+			glBegin(GL_QUADS);
+			glVertex2f(segment.x - size / 2, segment.y - size / 2);
+			glVertex2f(segment.x + size / 2, segment.y - size / 2);
+			glVertex2f(segment.x + size / 2, segment.y + size / 2);
+			glVertex2f(segment.x - size / 2, segment.y + size / 2);
+			glEnd();
+		}
 	}
-	for (int y = 0; y <= 600; y += segmentSize) {
-		glLineWidth(lineWidth);
-		glBegin(GL_LINES);
-		glVertex2f(0.0f, static_cast<float>(y));
-		glVertex2f(800.0f, static_cast<float>(y));
-		glEnd();
-
+	else {
+		// Render the game over screen
+		renderGameOverScreen();
 	}
 
 
-	if (food) {
+	if (!gameOver && food) {
 		food->draw();
 	}
 
-	//draw snake
-	const float size = 30.0f;
-	glColor3f(snake.getRed(), snake.getGreen(), snake.getBlue()); //snake color (change)
-	for (const auto& segment : snake.getSegments()) {
-		glBegin(GL_QUADS);
-		glVertex2f(segment.x - size / 2, segment.y - size / 2);
-		glVertex2f(segment.x + size / 2, segment.y - size / 2);
-		glVertex2f(segment.x + size / 2, segment.y + size / 2);
-		glVertex2f(segment.x - size / 2, segment.y + size / 2);
-		glEnd();
-	}
 	glutSwapBuffers();
 }
 
